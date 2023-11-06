@@ -98,74 +98,71 @@ def cross_val(label, drugA,drugB, event_num, X_vector,X_three_vector,DDI_edge, d
     cross_ver = 0
 
     for train_index, test_index in skf.split(DDI_edge, label):
-        if cross_ver<1:
-            cross_ver = cross_ver+1
-            continue
-        else:
-            if args.task == "task1":
-                y_train, y_test = label[train_index], label[test_index]
-                ddi_edge_train, ddi_edge_test = DDI_edge[train_index], DDI_edge[test_index]
+        if args.task == "task1":
+            y_train, y_test = label[train_index], label[test_index]
+            ddi_edge_train, ddi_edge_test = DDI_edge[train_index], DDI_edge[test_index]
 
-            if args.task == "task2":
-                y_train = [];
-                y_test = []
-                ddi_edge_train = [];
-                ddi_edge_test = [];
-                for i in range(len(drugA)):
-                    if (drugA[i] in np.array(train_drug[cross_ver])) and (
-                            drugB[i] in np.array(train_drug[cross_ver])):
-                        y_train.append(label[i])
-                        ddi_edge_train.append(DDI_edge[i])
+        if args.task == "task2":
+            y_train = [];
+            y_test = []
+            ddi_edge_train = [];
+            ddi_edge_test = [];
+            for i in range(len(drugA)):
+                if (drugA[i] in np.array(train_drug[cross_ver])) and (
+                        drugB[i] in np.array(train_drug[cross_ver])):
+                    y_train.append(label[i])
+                    ddi_edge_train.append(DDI_edge[i])
 
-                    if (drugA[i] not in np.array(train_drug[cross_ver])) and (
-                            drugB[i] in np.array(train_drug[cross_ver])):
-                        y_test.append(label[i])
-                        ddi_edge_test.append(DDI_edge[i])
+                if (drugA[i] not in np.array(train_drug[cross_ver])) and (
+                        drugB[i] in np.array(train_drug[cross_ver])):
+                    y_test.append(label[i])
+                    ddi_edge_test.append(DDI_edge[i])
 
-                    if (drugA[i] in np.array(train_drug[cross_ver])) and (
-                            drugB[i] not in np.array(train_drug[cross_ver])):
-                        y_test.append(label[i])
-                        ddi_edge_test.append(DDI_edge[i])
+                if (drugA[i] in np.array(train_drug[cross_ver])) and (
+                        drugB[i] not in np.array(train_drug[cross_ver])):
+                    y_test.append(label[i])
+                    ddi_edge_test.append(DDI_edge[i])
 
-            if args.task == "task3":
-                y_train = [];
-                y_test = []
-                ddi_edge_train = [];
-                ddi_edge_test = [];
-                for i in range(len(drugA)):
-                    if (drugA[i] in np.array(train_drug[cross_ver])) and (drugB[i] in np.array(train_drug[cross_ver])):
-                        y_train.append(label[i])
-                        ddi_edge_train.append(DDI_edge[i])
+        if args.task == "task3":
+            y_train = [];
+            y_test = []
+            ddi_edge_train = [];
+            ddi_edge_test = [];
+            for i in range(len(drugA)):
+                if (drugA[i] in np.array(train_drug[cross_ver])) and (drugB[i] in np.array(train_drug[cross_ver])):
+                    y_train.append(label[i])
+                    ddi_edge_train.append(DDI_edge[i])
 
-                    if (drugA[i] not in np.array(train_drug[cross_ver])) and (
-                            drugB[i] not in np.array(train_drug[cross_ver])):
-                        y_test.append(label[i])
-                        ddi_edge_test.append(DDI_edge[i])
+                if (drugA[i] not in np.array(train_drug[cross_ver])) and (
+                        drugB[i] not in np.array(train_drug[cross_ver])):
+                    y_test.append(label[i])
+                    ddi_edge_test.append(DDI_edge[i])
 
-            y_train = np.array(y_train)
-            y_test = np.array(y_test)
-            ddi_edge_train = np.array(ddi_edge_train, dtype=int)
-            ddi_edge_test = np.array(ddi_edge_test, dtype=int)
+        y_train = np.array(y_train)
+        y_test = np.array(y_test)
+        ddi_edge_train = np.array(ddi_edge_train, dtype=int)
+        ddi_edge_test = np.array(ddi_edge_test, dtype=int)
 
-            adj, n_drugs = adj_Heter_gene(ddi_edge_train, X_vector, event_num, y_train)
-            model = HMGRL(len(X_vector[0]) * 2, event_num, n_drugs, N_three_attribute, args)
+        adj, n_drugs = adj_Heter_gene(ddi_edge_train, X_vector, event_num, y_train)
+        model = HMGRL(len(X_vector[0]) * 2, event_num, n_drugs, N_three_attribute, args)
 
-            print("train len", len(y_train))
-            print("test len", len(y_test))
+        print("train len", len(y_train))
+        print("test len", len(y_test))
 
-            pred_score = HMGRL_train(model, y_train, y_test,
-                                     event_num, X_vector, X_three_vector, adj, ddi_edge_train, ddi_edge_test,
-                                     drug_coding, tensor_tempvec_multi,
-                                     args)
+        pred_score = HMGRL_train(model, y_train, y_test,
+                                 event_num, X_vector, X_three_vector, adj, ddi_edge_train, ddi_edge_test,
+                                 drug_coding, tensor_tempvec_multi,
+                                 args)
 
-            pred_type = np.argmax(pred_score, axis=1)
-            y_pred = np.hstack((y_pred, pred_type))
-            y_score = np.row_stack((y_score, pred_score))
+        pred_type = np.argmax(pred_score, axis=1)
+        y_pred = np.hstack((y_pred, pred_type))
+        y_score = np.row_stack((y_score, pred_score))
 
-            y_true = np.hstack((y_true, y_test))
-            result_all_now, _ = evaluate(pred_type, pred_score, y_test, event_num)
-            print(result_all_now)
-            cross_ver = cross_ver + 1
+        y_true = np.hstack((y_true, y_test))
+        result_all_now, _ = evaluate(pred_type, pred_score, y_test, event_num)
+        print(result_all_now)
+        cross_ver = cross_ver + 1
+
 
         # break
 
