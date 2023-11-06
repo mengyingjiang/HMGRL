@@ -8,7 +8,7 @@ Dataset 1
 --dataset dataset1 --task task2 --learn_rating 0.000005 --dr 0.2 --g_d 500 --batch_size 1024
  --hd1 800 --hd2 800 --clusters 400 --gc_weight 0.5 --heads 4 --layers 1 --n_hop 3
 
---dataset dataset1 --task task3 --learn_rating 0.000005 --dr 0.3 --g_d 500 --batch_size 1024
+--dataset dataset1 --task task3 --learn_rating 0.000005 --dr 0.4 --g_d 500 --batch_size 1024
 --hd1 800  --hd2 800 --clusters 400 --gc_weight 0.5 --heads 4 --layers 1 --n_hop 3
 
 Dataset 2
